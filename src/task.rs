@@ -21,13 +21,21 @@ impl Task for ToDo {
 
 impl ToDo {
     pub fn new(description: String) -> Self {
-        ToDo { description, is_done: false }
+        ToDo {
+            description,
+            is_done: false,
+        }
     }
 }
 
 impl fmt::Display for ToDo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[T][{}] {}", if self.is_done { "√" } else { "X" }, self.description)
+        write!(
+            f,
+            "[T][{}] {}",
+            if self.is_done { "√" } else { "X" },
+            self.description
+        )
     }
 }
 
@@ -48,14 +56,20 @@ impl Task for Event {
 
 impl Event {
     pub fn new(description: String, timing: String) -> Self {
-        Event { description, timing, is_done: false }
+        Event {
+            description,
+            timing,
+            is_done: false,
+        }
     }
 }
 
 impl fmt::Display for Event {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[E][{}] {} (at: {})", 
-            if self.is_done { "√" } else { "X" }, 
+        write!(
+            f,
+            "[E][{}] {} (at: {})",
+            if self.is_done { "√" } else { "X" },
             self.description,
             self.timing,
         )
@@ -79,14 +93,20 @@ impl Task for Deadline {
 
 impl Deadline {
     pub fn new(description: String, deadline: String) -> Self {
-        Deadline { description, deadline, is_done: false }
+        Deadline {
+            description,
+            deadline,
+            is_done: false,
+        }
     }
 }
 
 impl fmt::Display for Deadline {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[D][{}] {} (by: {})", 
-            if self.is_done { "√" } else { "X" }, 
+        write!(
+            f,
+            "[D][{}] {} (by: {})",
+            if self.is_done { "√" } else { "X" },
             self.description,
             self.deadline,
         )

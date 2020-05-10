@@ -1,20 +1,15 @@
 use std::io;
 use std::process;
 
-mod msg;
 mod command;
+mod msg;
 mod task;
 mod util;
 
-use util::print_formatted_message;
-use command::{
-    Command, parse_command, list_tasks, add_task, done_task,
-};
+use command::{add_task, done_task, list_tasks, parse_command, Command};
+use msg::{BYE_MESSAGE, INDEX_OUT_OF_BOUND_MESSAGE, INVALID_INPUT_MESSAGE, WELCOME_MESSAGE};
 use task::Task;
-use msg::{
-    BYE_MESSAGE, WELCOME_MESSAGE,
-    INDEX_OUT_OF_BOUND_MESSAGE, INVALID_INPUT_MESSAGE,
-};
+use util::print_formatted_message;
 
 pub fn start() {
     print_formatted_message(WELCOME_MESSAGE);
@@ -28,16 +23,16 @@ pub fn start() {
             Ok(_) => (),
             Err(_) => {
                 println!("{}", INVALID_INPUT_MESSAGE);
-                continue
+                continue;
             }
         };
-            
+
         let command: Command = match parse_command(input.trim()) {
             Ok(cmd) => cmd,
             Err(e) => {
                 print_formatted_message(e);
-                continue
-            },
+                continue;
+            }
         };
 
         // handle commands
@@ -48,16 +43,14 @@ pub fn start() {
                 Ok(_) => (),
                 Err(s) => {
                     print_formatted_message(s);
-                    continue
+                    continue;
                 }
             },
-            Command::DoneCommand(ind) => {
-                match done_task(&mut tasks, ind) {
-                    Ok(_) => (),
-                    Err(_) => {
-                        print_formatted_message(INDEX_OUT_OF_BOUND_MESSAGE);
-                        continue
-                    },
+            Command::DoneCommand(ind) => match done_task(&mut tasks, ind) {
+                Ok(_) => (),
+                Err(_) => {
+                    print_formatted_message(INDEX_OUT_OF_BOUND_MESSAGE);
+                    continue;
                 }
             },
         }
