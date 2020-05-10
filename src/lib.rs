@@ -19,9 +19,10 @@ use msg::{
 pub fn start() {
     print_formatted_message(WELCOME_MESSAGE);
 
-    let mut tasks: Vec<Task> = Vec::new();
+    let mut tasks: Vec<Box<dyn Task>> = Vec::new();
 
     loop {
+        // handle user input
         let mut input = String::new();
         match io::stdin().read_line(&mut input) {
             Ok(_) => (),
@@ -31,17 +32,25 @@ pub fn start() {
             }
         };
             
-        let input_trimmed = input.trim();
-        // println!("{}", input_trimmed);
-        let command: Command = parse_command(input_trimmed).unwrap();
-        // println!("=Command==");
-        // println!("{:?}", command);
-        // println!("==========");
+        let command: Command = match parse_command(input.trim()) {
+            Ok(cmd) => cmd,
+            Err(e) => {
+                print_formatted_message(e);
+                continue
+            },
+        };
 
+        // handle commands
         match command {
             Command::ByeCommand => exit(),
             Command::ListCommand => list_tasks(&tasks),
-            Command::NewTaskCommand(task) => add_task(&mut tasks, task),
+            Command::NewTaskCommand(task) => match add_task(&mut tasks, task) {
+                Ok(_) => (),
+                Err(s) => {
+                    print_formatted_message(s);
+                    continue
+                }
+            },
             Command::DoneCommand(ind) => {
                 match done_task(&mut tasks, ind) {
                     Ok(_) => (),
@@ -54,7 +63,6 @@ pub fn start() {
         }
     }
 }
-
 
 fn exit() {
     print_formatted_message(BYE_MESSAGE);
