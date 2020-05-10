@@ -3,6 +3,7 @@ use std::fmt;
 pub trait Task: fmt::Display {
     fn is_done(&self) -> bool;
     fn complete(&mut self);
+    fn to_serializable_string(&self) -> String;
 }
 
 pub struct ToDo {
@@ -16,6 +17,14 @@ impl Task for ToDo {
     }
     fn complete(&mut self) {
         self.is_done = true;
+    }
+    fn to_serializable_string(&self) -> String {
+        format!(
+            "{} | {} | {}\n",
+            "T",
+            if self.is_done() { "1" } else { "0" },
+            self.description
+        )
     }
 }
 
@@ -51,6 +60,15 @@ impl Task for Event {
     }
     fn complete(&mut self) {
         self.is_done = true;
+    }
+    fn to_serializable_string(&self) -> String {
+        format!(
+            "{} | {} | {} | {}\n",
+            "T",
+            if self.is_done() { "1" } else { "0" },
+            self.description,
+            self.timing
+        )
     }
 }
 
@@ -88,6 +106,15 @@ impl Task for Deadline {
     }
     fn complete(&mut self) {
         self.is_done = true;
+    }
+    fn to_serializable_string(&self) -> String {
+        format!(
+            "{} | {} | {} | {}\n",
+            "T",
+            if self.is_done() { "1" } else { "0" },
+            self.description,
+            self.deadline
+        )
     }
 }
 

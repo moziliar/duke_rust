@@ -66,7 +66,7 @@ fn parse_new_task_command(task_str: String) -> Result<Box<dyn Task>, &'static st
 fn parse_task_type(task_string: String) -> (String, String) {
     let mut iter = task_string.split(' ');
     let task_type = iter.next().unwrap().to_string();
-    (task_type, iter.collect::<String>())
+    (task_type, iter.collect::<Vec<&str>>().join(" "))
 }
 
 pub fn done_task(tasks: &mut Vec<Box<dyn Task>>, index: usize) -> Result<String, &'static str> {
@@ -89,7 +89,7 @@ pub fn delete_task(tasks: &mut Vec<Box<dyn Task>>, index: usize) -> Result<Strin
 
     let task_removed = tasks.remove(index - 1);
     Ok(format!(
-        "{}\n   {} Now you have {} tasks in the list.",
+        "{}\n   {}\nNow you have {} tasks in the list.",
         REMOVED_MESSAGE,
         task_removed,
         tasks.len()
