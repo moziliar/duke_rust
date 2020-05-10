@@ -150,7 +150,7 @@ mod test {
         let _ = add_task(&mut tasks, task_string_1.to_string());
         let _ = add_task(&mut tasks, task_string_2.to_string());
 
-        assert_eq!(list_tasks(&tasks), "1: [T][X] test\n2: [T][X] test2");
+        assert_eq!(list_tasks(&tasks), "1: [T][X] test\n2: [T][X] test 2");
     }
 
     #[test]
@@ -172,7 +172,7 @@ mod test {
         assert_eq!(
             delete_task(&mut tasks, 1),
             Ok(format!(
-                "{}\n   {} Now you have {} tasks in the list.",
+                "{}\n   {}\nNow you have {} tasks in the list.",
                 REMOVED_MESSAGE,
                 new_task,
                 tasks.len()
