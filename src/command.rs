@@ -24,13 +24,16 @@ pub fn list_tasks(tasks: &[Box<dyn Task>]) -> String {
     }
 }
 
-pub fn add_task(tasks: &mut Vec<Box<dyn Task>>, task_string: String) -> Result<String, &'static str> {
+pub fn add_task(
+    tasks: &mut Vec<Box<dyn Task>>,
+    task_string: String,
+) -> Result<String, &'static str> {
     match parse_new_task_command(task_string) {
         Ok(task) => {
             let output = format!("added: {}", task);
             tasks.push(task);
             Ok(output)
-        },
+        }
         Err(e) => Err(e),
     }
 }
@@ -149,11 +152,11 @@ mod test {
 
         assert_eq!(list_tasks(&tasks), "1: [T][X] test\n2: [T][X] test2");
     }
-    
+
     #[test]
     fn test_delete_task_from_empty_task_bank() {
         let mut tasks: Vec<Box<dyn Task>> = Vec::new();
-        assert_eq!(delete_task(&mut tasks, 1), Err("index out of bound!")); 
+        assert_eq!(delete_task(&mut tasks, 1), Err("index out of bound!"));
     }
 
     #[test]
@@ -163,25 +166,25 @@ mod test {
         let task_string = "todo test";
         let new_task = match parse_new_task_command(task_string.to_string()) {
             Ok(task) => task,
-            Err(_) => {
-                panic!("")
-            }
+            Err(_) => panic!(""),
         };
         let _ = add_task(&mut tasks, task_string.to_string());
-        assert_eq!(delete_task(&mut tasks, 1),
+        assert_eq!(
+            delete_task(&mut tasks, 1),
             Ok(format!(
                 "{}\n   {} Now you have {} tasks in the list.",
                 REMOVED_MESSAGE,
                 new_task,
-                tasks.len()))
-            );
+                tasks.len()
+            ))
+        );
     }
 
     // #[test]
     // fn test_delete_task_from_empty_task_bank() {
     //     let mut tasks: Vec<Box<dyn Task>> = Vec::new();
     //     match delete_task(&mut tasks, 1) {
-    //         Err(e) => assert_eq!("Index out of bound!", e), 
+    //         Err(e) => assert_eq!("Index out of bound!", e),
     //         Ok(_) =>  panic!("wrong"),
     //     };
     // }
