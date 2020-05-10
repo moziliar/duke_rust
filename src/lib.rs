@@ -6,7 +6,7 @@ mod msg;
 mod task;
 mod util;
 
-use command::{add_task, done_task, list_tasks, parse_command, Command};
+use command::{add_task, delete_task, done_task, list_tasks, parse_command, Command};
 use msg::{BYE_MESSAGE, INDEX_OUT_OF_BOUND_MESSAGE, INVALID_INPUT_MESSAGE, WELCOME_MESSAGE};
 use task::Task;
 use util::print_formatted_message;
@@ -38,16 +38,23 @@ pub fn start() {
         // handle commands
         match command {
             Command::ByeCommand => exit(),
-            Command::ListCommand => list_tasks(&tasks),
+            Command::ListCommand => print_formatted_message(list_tasks(&tasks).as_str()),
             Command::NewTaskCommand(task) => match add_task(&mut tasks, task) {
-                Ok(_) => (),
+                Ok(msg) => print_formatted_message(msg.as_str()),
                 Err(s) => {
                     print_formatted_message(s);
                     continue;
                 }
             },
             Command::DoneCommand(ind) => match done_task(&mut tasks, ind) {
-                Ok(_) => (),
+                Ok(msg) => print_formatted_message(msg.as_str()),
+                Err(_) => {
+                    print_formatted_message(INDEX_OUT_OF_BOUND_MESSAGE);
+                    continue;
+                }
+            },
+            Command::DeleteCommand(ind) => match delete_task(&mut tasks, ind) {
+                Ok(msg) => print_formatted_message(msg.as_str()),
                 Err(_) => {
                     print_formatted_message(INDEX_OUT_OF_BOUND_MESSAGE);
                     continue;

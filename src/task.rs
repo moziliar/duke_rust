@@ -112,3 +112,32 @@ impl fmt::Display for Deadline {
         )
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_new_todo_not_done_only_done_after_complete() {
+        let mut new_todo = ToDo::new("".to_string());
+        assert!(!new_todo.is_done());
+        new_todo.complete();
+        assert!(new_todo.is_done());
+    }
+
+    #[test]
+    fn test_new_event_not_done_only_done_after_complete() {
+        let mut new_event = Event::new("".to_string(), "".to_string());
+        assert!(!new_event.is_done());
+        new_event.complete();
+        assert!(new_event.is_done());
+    }
+
+    #[test]
+    fn test_new_deadline_not_done_only_done_after_complete() {
+        let mut new_deadline = Deadline::new("".to_string(), "".to_string());
+        assert!(!new_deadline.is_done());
+        new_deadline.complete();
+        assert!(new_deadline.is_done());
+    }
+}
