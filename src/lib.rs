@@ -1,7 +1,12 @@
+extern crate chrono;
+
 use std::fs::{self, File};
 use std::io::prelude::*;
-use std::io::{self, BufReader};
+use std::io::{self, BufReader, ErrorKind};
 use std::process;
+use std::error::Error;
+
+use chrono::NaiveDateTime;
 
 mod command;
 mod msg;
@@ -49,7 +54,7 @@ pub fn start() {
                     let _ = write_file(FILEPATH, &tasks);
                 }
                 Err(s) => {
-                    print_formatted_message(s);
+                    print_formatted_message(s.to_string().as_str());
                     continue;
                 }
             },
@@ -78,24 +83,29 @@ pub fn start() {
 }
 
 fn read_file(filepath: &str) -> Vec<Box<dyn Task>> {
-    println!("{}", filepath);
-    let f = match File::open(filepath) {
-        Ok(f) => f,
-        Err(_) => match File::create(filepath) {
-            Ok(_) => return Vec::new(),
-            Err(e) => panic!("Failed to create storage file. {}", e),
-        },
-    };
+    let f = File::open(filepath).unwrap_or_else(|error| {
+        if error.kind() == ErrorKind::NotFound {
+            File::create(filepath).unwrap_or_else(|error| {
+                panic!("Problem creating the file: {:?}", error);
+            })
+        } else {
+            panic!("Problem opening the file: {:?}", error);
+        }
+    });
+
     let f = BufReader::new(f);
 
     let mut tasks: Vec<Box<dyn Task>> = Vec::new();
     for line in f.lines() {
-        tasks.push(read_task(line.unwrap()));
+        match read_task(line.unwrap()) {
+            Ok(t) => tasks.push(t),
+            Err(e) => println!("{}", e)
+        }
     }
     tasks
 }
 
-fn read_task(text: String) -> Box<dyn Task> {
+fn read_task(text: String) -> Result<Box<dyn Task>, Box<dyn Error>> {
     let mut args = text.split('|');
     let task_type = args.next().expect("File corrupted").trim();
     let is_done = args.next().expect("File corrupted").trim();
@@ -115,21 +125,21 @@ fn read_task(text: String) -> Box<dyn Task> {
             if is_done == "1" {
                 todo.complete();
             }
-            Box::new(todo)
+            Ok(Box::new(todo))
         }
         "E" => {
-            let mut event = Event::new(desc.to_string(), timing.to_string());
+            let mut event = Event::new(desc.to_string(), NaiveDateTime::parse_from_str(timing, "%Y-%m-%d %H:%M:%S")?);
             if is_done == "1" {
                 event.complete();
             }
-            Box::new(event)
+            Ok(Box::new(event))
         }
         "D" => {
-            let mut deadline = Deadline::new(desc.to_string(), timing.to_string());
+            let mut deadline = Deadline::new(desc.to_string(), NaiveDateTime::parse_from_str(timing, "%Y-%m-%d %H:%M:%S")?);
             if is_done == "1" {
                 deadline.complete();
             }
-            Box::new(deadline)
+            Ok(Box::new(deadline))
         }
         _ => panic!("File corrupted"),
     }

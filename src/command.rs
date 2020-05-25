@@ -1,3 +1,9 @@
+extern crate chrono;
+
+use std::error::Error;
+
+use chrono::NaiveDateTime;
+
 use crate::msg::{DONE_MESSAGE, NO_TASK_MESSAGE, REMOVED_MESSAGE};
 use crate::task::{Deadline, Event, Task, ToDo};
 
@@ -27,18 +33,18 @@ pub fn list_tasks(tasks: &[Box<dyn Task>]) -> String {
 pub fn add_task(
     tasks: &mut Vec<Box<dyn Task>>,
     task_string: String,
-) -> Result<String, &'static str> {
+) -> Result<String, Box<dyn Error>> {
     match parse_new_task_command(task_string) {
         Ok(task) => {
             let output = format!("added: {}", task);
             tasks.push(task);
-            Ok(output)
-        }
+            Ok(output.to_string())
+        },
         Err(e) => Err(e),
     }
 }
 
-fn parse_new_task_command(task_str: String) -> Result<Box<dyn Task>, &'static str> {
+fn parse_new_task_command(task_str: String) -> Result<Box<dyn Task>, Box<dyn Error>> {
     let (task_type, task_string) = parse_task_type(task_str);
 
     println!("parsing {} {}", task_type, task_string);
@@ -47,19 +53,26 @@ fn parse_new_task_command(task_str: String) -> Result<Box<dyn Task>, &'static st
         "event" => {
             let mut iter = task_string.split("/at");
             let event: String = iter.next().unwrap().to_string();
-            let timing: String = match iter.next() {
-                Some(t) => t.to_string(),
-                None => return Err("no timing given"),
-            };
-            Ok(Box::new(Event::new(event, timing)))
+            match iter.next() {
+                None => return Err("no timing given".into()),
+                Some(s) => {
+                    let timing = NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S")?;
+                    Ok(Box::new(Event::new(event, timing)))
+                },
+            }
         }
         "deadline" => {
             let mut iter = task_string.split("/by");
             let event: String = iter.next().unwrap().to_string();
-            let timing: String = iter.next().unwrap().to_string();
-            Ok(Box::new(Deadline::new(event, timing)))
+            match iter.next() {
+                None => return Err("no timing given".into()),
+                Some(s) => {
+                    let timing = NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S")?;
+                    Ok(Box::new(Deadline::new(event, timing)))
+                },
+            }
         }
-        _ => Err("unknown type"),
+        _ => Err("unknown type".into())
     }
 }
 
