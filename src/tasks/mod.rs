@@ -1,4 +1,4 @@
+pub mod deadline;
+pub mod event;
 pub mod task;
 pub mod todo;
-pub mod event;
-pub mod deadline;
