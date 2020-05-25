@@ -8,15 +8,16 @@ use std::process;
 
 use chrono::NaiveDateTime;
 
-mod command;
-mod msg;
-mod task;
-mod util;
+mod commands;
+mod common;
+mod tasks;
 
-use command::{add_task, delete_task, done_task, list_tasks, parse_command, Command};
-use msg::{BYE_MESSAGE, INDEX_OUT_OF_BOUND_MESSAGE, INVALID_INPUT_MESSAGE, WELCOME_MESSAGE};
-use task::{Deadline, Event, Task, ToDo};
-use util::print_formatted_message;
+use commands::command::{add_task, delete_task, done_task, list_tasks, parse_command, Command};
+use common::msg::{
+    BYE_MESSAGE, INDEX_OUT_OF_BOUND_MESSAGE, INVALID_INPUT_MESSAGE, WELCOME_MESSAGE,
+};
+use common::util::print_formatted_message;
+use tasks::{deadline::Deadline, event::Event, task::Task, todo::ToDo};
 
 static FILEPATH: &str = "./data/storage.txt";
 

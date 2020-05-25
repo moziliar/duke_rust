@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -ex
+
+# Filter Golang files match Added (A), Copied (C), Modified (M) conditions.
+rsfiles=$(git diff --cached --name-only --diff-filter=ACM | grep '\.rs$' || true)
+
+if [ -n "$rsfiles" ]; then
+    cargo fmt -w $rsfiles
+    git add $rsfiles
+fi
+
+cargo clippy

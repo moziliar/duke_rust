@@ -4,8 +4,8 @@ use std::error::Error;
 
 use chrono::NaiveDateTime;
 
-use crate::msg::{DONE_MESSAGE, NO_TASK_MESSAGE, REMOVED_MESSAGE};
-use crate::task::{Deadline, Event, Task, ToDo};
+use crate::common::msg::{DONE_MESSAGE, NO_TASK_MESSAGE, REMOVED_MESSAGE};
+use crate::tasks::{deadline::Deadline, event::Event, task::Task, todo::ToDo};
 
 #[derive(PartialEq, Eq, Debug)]
 pub enum Command {
