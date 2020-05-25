@@ -38,7 +38,7 @@ pub fn add_task(
         Ok(task) => {
             let output = format!("added: {}", task);
             tasks.push(task);
-            Ok(output.to_string())
+            Ok(output)
         }
         Err(e) => Err(e),
     }
@@ -54,7 +54,7 @@ fn parse_new_task_command(task_str: String) -> Result<Box<dyn Task>, Box<dyn Err
             let mut iter = task_string.split("/at");
             let event: String = iter.next().unwrap().to_string();
             match iter.next() {
-                None => return Err("no timing given".into()),
+                None => Err("no timing given".into()),
                 Some(s) => {
                     let timing = NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S")?;
                     Ok(Box::new(Event::new(event, timing)))
@@ -65,11 +65,11 @@ fn parse_new_task_command(task_str: String) -> Result<Box<dyn Task>, Box<dyn Err
             let mut iter = task_string.split("/by");
             let event: String = iter.next().unwrap().to_string();
             match iter.next() {
-                None => return Err("no timing given".into()),
                 Some(s) => {
                     let timing = NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S")?;
                     Ok(Box::new(Deadline::new(event, timing)))
                 }
+                None => Err("no timing given".into()),
             }
         }
         _ => Err("unknown type".into()),
