@@ -1,10 +1,10 @@
 extern crate chrono;
 
+use std::error::Error;
 use std::fs::{self, File};
 use std::io::prelude::*;
 use std::io::{self, BufReader, ErrorKind};
 use std::process;
-use std::error::Error;
 
 use chrono::NaiveDateTime;
 
@@ -99,7 +99,7 @@ fn read_file(filepath: &str) -> Vec<Box<dyn Task>> {
     for line in f.lines() {
         match read_task(line.unwrap()) {
             Ok(t) => tasks.push(t),
-            Err(e) => println!("{}", e)
+            Err(e) => println!("{}", e),
         }
     }
     tasks
@@ -128,14 +128,20 @@ fn read_task(text: String) -> Result<Box<dyn Task>, Box<dyn Error>> {
             Ok(Box::new(todo))
         }
         "E" => {
-            let mut event = Event::new(desc.to_string(), NaiveDateTime::parse_from_str(timing, "%Y-%m-%d %H:%M:%S")?);
+            let mut event = Event::new(
+                desc.to_string(),
+                NaiveDateTime::parse_from_str(timing, "%Y-%m-%d %H:%M:%S")?,
+            );
             if is_done == "1" {
                 event.complete();
             }
             Ok(Box::new(event))
         }
         "D" => {
-            let mut deadline = Deadline::new(desc.to_string(), NaiveDateTime::parse_from_str(timing, "%Y-%m-%d %H:%M:%S")?);
+            let mut deadline = Deadline::new(
+                desc.to_string(),
+                NaiveDateTime::parse_from_str(timing, "%Y-%m-%d %H:%M:%S")?,
+            );
             if is_done == "1" {
                 deadline.complete();
             }

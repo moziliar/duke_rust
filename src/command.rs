@@ -39,7 +39,7 @@ pub fn add_task(
             let output = format!("added: {}", task);
             tasks.push(task);
             Ok(output.to_string())
-        },
+        }
         Err(e) => Err(e),
     }
 }
@@ -58,7 +58,7 @@ fn parse_new_task_command(task_str: String) -> Result<Box<dyn Task>, Box<dyn Err
                 Some(s) => {
                     let timing = NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S")?;
                     Ok(Box::new(Event::new(event, timing)))
-                },
+                }
             }
         }
         "deadline" => {
@@ -69,10 +69,10 @@ fn parse_new_task_command(task_str: String) -> Result<Box<dyn Task>, Box<dyn Err
                 Some(s) => {
                     let timing = NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S")?;
                     Ok(Box::new(Deadline::new(event, timing)))
-                },
+                }
             }
         }
-        _ => Err("unknown type".into())
+        _ => Err("unknown type".into()),
     }
 }
 
