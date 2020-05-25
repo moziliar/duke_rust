@@ -1,5 +1,7 @@
 use std::fmt;
 
+use chrono::NaiveDateTime;
+
 pub trait Task: fmt::Display {
     fn is_done(&self) -> bool;
     fn complete(&mut self);
@@ -50,7 +52,7 @@ impl fmt::Display for ToDo {
 
 pub struct Event {
     description: String,
-    timing: String,
+    timing: NaiveDateTime,
     is_done: bool,
 }
 
@@ -73,7 +75,7 @@ impl Task for Event {
 }
 
 impl Event {
-    pub fn new(description: String, timing: String) -> Self {
+    pub fn new(description: String, timing: NaiveDateTime) -> Self {
         Event {
             description,
             timing,
@@ -89,14 +91,14 @@ impl fmt::Display for Event {
             "[E][{}] {} (at: {})",
             if self.is_done { "√" } else { "X" },
             self.description,
-            self.timing,
+            self.timing.format("%Y-%m-%d %H:%M:%S").to_string(),
         )
     }
 }
 
 pub struct Deadline {
     description: String,
-    deadline: String,
+    deadline: NaiveDateTime,
     is_done: bool,
 }
 
@@ -119,7 +121,7 @@ impl Task for Deadline {
 }
 
 impl Deadline {
-    pub fn new(description: String, deadline: String) -> Self {
+    pub fn new(description: String, deadline: NaiveDateTime) -> Self {
         Deadline {
             description,
             deadline,
@@ -135,7 +137,7 @@ impl fmt::Display for Deadline {
             "[D][{}] {} (by: {})",
             if self.is_done { "√" } else { "X" },
             self.description,
-            self.deadline,
+            self.deadline.format("%Y-%m-%d %H:%M:%S").to_string(),
         )
     }
 }
@@ -154,7 +156,10 @@ mod test {
 
     #[test]
     fn test_new_event_not_done_only_done_after_complete() {
-        let mut new_event = Event::new("".to_string(), "".to_string());
+        let mut new_event = Event::new(
+            "".to_string(),
+            NaiveDateTime::parse_from_str("2020-05-11 10:47:00", "%Y-%m-%d %H:%M:%S").unwrap(),
+        );
         assert!(!new_event.is_done());
         new_event.complete();
         assert!(new_event.is_done());
@@ -162,7 +167,10 @@ mod test {
 
     #[test]
     fn test_new_deadline_not_done_only_done_after_complete() {
-        let mut new_deadline = Deadline::new("".to_string(), "".to_string());
+        let mut new_deadline = Deadline::new(
+            "".to_string(),
+            NaiveDateTime::parse_from_str("2020-05-11 10:47:00", "%Y-%m-%d %H:%M:%S").unwrap(),
+        );
         assert!(!new_deadline.is_done());
         new_deadline.complete();
         assert!(new_deadline.is_done());
