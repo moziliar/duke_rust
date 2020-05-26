@@ -14,6 +14,7 @@ pub enum Command {
     NewTaskCommand(String),
     DoneCommand(usize),
     DeleteCommand(usize),
+    FindCommand(String),
 }
 
 pub fn list_tasks(tasks: &[Box<dyn Task>]) -> String {
@@ -41,6 +42,83 @@ pub fn add_task(
             Ok(output)
         }
         Err(e) => Err(e),
+    }
+}
+
+pub fn done_task(tasks: &mut Vec<Box<dyn Task>>, index: usize) -> Result<String, &'static str> {
+    if index > tasks.len() || index == 0 {
+        return Err("index out of bound!");
+    }
+    assert!(index <= tasks.len() || index > 0);
+
+    if !tasks[index - 1].is_done() {
+        tasks[index - 1].complete();
+    }
+    Ok(format!("{}\n   {}", DONE_MESSAGE, tasks[index - 1]))
+}
+
+pub fn delete_task(tasks: &mut Vec<Box<dyn Task>>, index: usize) -> Result<String, &'static str> {
+    if index > tasks.len() || index == 0 {
+        return Err("index out of bound!");
+    }
+    assert!(index <= tasks.len() || index > 0);
+
+    let task_removed = tasks.remove(index - 1);
+    Ok(format!(
+        "{}\n   {}\nNow you have {} tasks in the list.",
+        REMOVED_MESSAGE,
+        task_removed,
+        tasks.len()
+    ))
+}
+
+#[allow(clippy::borrowed_box)]
+pub fn find_task(tasks: &[Box<dyn Task>], task: String) -> Result<&Box<dyn Task>, &'static str> {
+    for t in tasks {
+        if t.desc() == task {
+            return Ok(t);
+        }
+    }
+    Err("No task found")
+}
+
+pub fn parse_command(input: &str) -> Result<Command, &'static str> {
+    match input {
+        "bye" => Ok(Command::ByeCommand),
+        "list" => Ok(Command::ListCommand),
+        _ if input.starts_with("done ") => {
+            let mut args = input.split(' ');
+            args.next();
+            match args.next() {
+                Some(int) => match int.parse::<usize>() {
+                    Ok(index) => Ok(Command::DoneCommand(index)),
+                    Err(_) => Err("Invalid number"),
+                },
+                None => Err("Invalid command"),
+            }
+        }
+        _ if input.starts_with("todo ")
+            || input.starts_with("event ")
+            || input.starts_with("deadline ") =>
+        {
+            Ok(Command::NewTaskCommand(String::from(input)))
+        }
+        _ if input.starts_with("delete ") => {
+            let mut args = input.split(' ');
+            args.next();
+            match args.next() {
+                Some(int) => match int.parse::<usize>() {
+                    Ok(index) => Ok(Command::DeleteCommand(index)),
+                    Err(_) => Err("Invalid number"),
+                },
+                None => Err("Invalid command"),
+            }
+        }
+        _ if input.starts_with("find ") => {
+            let task = input.replacen("find ", "", 1);
+            Ok(Command::FindCommand(task))
+        }
+        _ => Err("Invalid command"),
     }
 }
 
@@ -80,69 +158,6 @@ fn parse_task_type(task_string: String) -> (String, String) {
     let mut iter = task_string.split(' ');
     let task_type = iter.next().unwrap().to_string();
     (task_type, iter.collect::<Vec<&str>>().join(" "))
-}
-
-pub fn done_task(tasks: &mut Vec<Box<dyn Task>>, index: usize) -> Result<String, &'static str> {
-    if index > tasks.len() || index == 0 {
-        return Err("index out of bound!");
-    }
-    assert!(index <= tasks.len() || index > 0);
-
-    if !tasks[index - 1].is_done() {
-        tasks[index - 1].complete();
-    }
-    Ok(format!("{}\n   {}", DONE_MESSAGE, tasks[index - 1]))
-}
-
-pub fn delete_task(tasks: &mut Vec<Box<dyn Task>>, index: usize) -> Result<String, &'static str> {
-    if index > tasks.len() || index == 0 {
-        return Err("index out of bound!");
-    }
-    assert!(index <= tasks.len() || index > 0);
-
-    let task_removed = tasks.remove(index - 1);
-    Ok(format!(
-        "{}\n   {}\nNow you have {} tasks in the list.",
-        REMOVED_MESSAGE,
-        task_removed,
-        tasks.len()
-    ))
-}
-
-pub fn parse_command(input: &str) -> Result<Command, &'static str> {
-    match input {
-        "bye" => Ok(Command::ByeCommand),
-        "list" => Ok(Command::ListCommand),
-        _ if input.starts_with("done ") => {
-            let mut args = input.split(' ');
-            args.next();
-            match args.next() {
-                Some(int) => match int.parse::<usize>() {
-                    Ok(index) => Ok(Command::DoneCommand(index)),
-                    Err(_) => Err("Invalid number"),
-                },
-                None => Err("Invalid command"),
-            }
-        }
-        _ if input.starts_with("todo ")
-            || input.starts_with("event ")
-            || input.starts_with("deadline ") =>
-        {
-            Ok(Command::NewTaskCommand(String::from(input)))
-        }
-        _ if input.starts_with("delete ") => {
-            let mut args = input.split(' ');
-            args.next();
-            match args.next() {
-                Some(int) => match int.parse::<usize>() {
-                    Ok(index) => Ok(Command::DeleteCommand(index)),
-                    Err(_) => Err("Invalid number"),
-                },
-                None => Err("Invalid command"),
-            }
-        }
-        _ => Err("Invalid command"),
-    }
 }
 
 #[cfg(test)]

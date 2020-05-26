@@ -11,6 +11,9 @@ pub struct Deadline {
 }
 
 impl Task for Deadline {
+    fn desc(&self) -> String {
+        self.description.clone()
+    }
     fn is_done(&self) -> bool {
         self.is_done
     }
