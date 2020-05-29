@@ -11,6 +11,9 @@ pub struct Event {
 }
 
 impl Task for Event {
+    fn desc(&self) -> String {
+        self.description.clone()
+    }
     fn is_done(&self) -> bool {
         self.is_done
     }

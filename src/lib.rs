@@ -12,7 +12,10 @@ mod commands;
 mod common;
 mod tasks;
 
-use commands::command::{add_task, delete_task, done_task, list_tasks, parse_command, Command};
+use commands::{
+    command::{add_task, delete_task, done_task, find_task, list_tasks, Command},
+    util::parse_command,
+};
 use common::msg::{
     BYE_MESSAGE, INDEX_OUT_OF_BOUND_MESSAGE, INVALID_INPUT_MESSAGE, WELCOME_MESSAGE,
 };
@@ -21,6 +24,7 @@ use tasks::{deadline::Deadline, event::Event, task::Task, todo::ToDo};
 
 static FILEPATH: &str = "./data/storage.txt";
 
+/// Starts the execution of the bot.
 pub fn start() {
     let mut tasks: Vec<Box<dyn Task>> = read_file(FILEPATH);
 
@@ -29,12 +33,9 @@ pub fn start() {
     loop {
         // handle user input
         let mut input = String::new();
-        match io::stdin().read_line(&mut input) {
-            Ok(_) => (),
-            Err(_) => {
-                println!("{}", INVALID_INPUT_MESSAGE);
-                continue;
-            }
+        if io::stdin().read_line(&mut input).is_err() {
+            println!("{}", INVALID_INPUT_MESSAGE);
+            continue;
         };
 
         let command: Command = match parse_command(input.trim()) {
@@ -76,6 +77,13 @@ pub fn start() {
                 }
                 Err(_) => {
                     print_formatted_message(INDEX_OUT_OF_BOUND_MESSAGE);
+                    continue;
+                }
+            },
+            Command::FindCommand(task) => match find_task(&tasks, task) {
+                Ok(task) => print_formatted_message(format!("{}", task).as_str()),
+                Err(e) => {
+                    print_formatted_message(e);
                     continue;
                 }
             },
