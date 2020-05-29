@@ -12,8 +12,9 @@ mod commands;
 mod common;
 mod tasks;
 
-use commands::command::{
-    add_task, delete_task, done_task, find_task, list_tasks, parse_command, Command,
+use commands::{
+    command::{add_task, delete_task, done_task, find_task, list_tasks, Command},
+    util::parse_command,
 };
 use common::msg::{
     BYE_MESSAGE, INDEX_OUT_OF_BOUND_MESSAGE, INVALID_INPUT_MESSAGE, WELCOME_MESSAGE,
